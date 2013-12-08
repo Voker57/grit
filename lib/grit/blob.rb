@@ -121,6 +121,11 @@ module Grit
     def <=>(other)
       name <=> other.name
     end
+    
+	 # See if blob is  a link
+	 def is_link?
+      self.mode[1..1] == '2'
+	 end
   end # Blob
 
 end # Grit
