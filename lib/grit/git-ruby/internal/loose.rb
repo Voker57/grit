@@ -54,9 +54,10 @@ module Grit
             end
             type = type.to_sym
             size = size.to_i
+            content = content.force_encoding("UTF-8")
           else
             type, size, used = unpack_object_header_gently(buf)
-            content = Zlib::Inflate.inflate(buf[used..-1])
+            content = Zlib::Inflate.inflate(buf[used..-1]).force_encoding("UTF-8")
           end
           raise LooseObjectError, "size mismatch" if content.bytesize != size
           return RawObject.new(type, content)
