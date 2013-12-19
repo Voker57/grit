@@ -15,6 +15,7 @@ require 'grit/git-ruby/internal/raw_object'
 require 'grit/git-ruby/internal/file_window'
 
 PACK_IDX_SIGNATURE = [0xFF, 0x74, 0x4F, 0x63]
+PACK_SIGNATURE = "PACK"
 
 module Grit
   module GitRuby
@@ -59,7 +60,7 @@ module Grit
           # read header
           # File.read return a ASCII-8BIT encoded string. Since we're comparing
           # sig against a source file string we force the encoding on it to UTF-8.
-          sig = idxfile.read(4).force_encoding("UTF-8")
+          sig = idxfile.read(4).unpack("C*")
           ver = idxfile.read(4).unpack("N")[0]
 
           if sig == PACK_IDX_SIGNATURE
