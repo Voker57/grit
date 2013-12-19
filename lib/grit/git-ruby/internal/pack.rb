@@ -257,7 +257,7 @@ module Grit
           obj = nil
           with_packfile do |packfile|
             data, type = unpack_object(packfile, offset)
-            obj = RawObject.new(OBJ_TYPES[type], data)
+            obj = RawObject.new(OBJ_TYPES[type], data.force_encoding("UTF-8"))
           end
           obj
         end
@@ -329,14 +329,14 @@ module Grit
           with_packfile do |packfile|
             packfile.seek(offset)
             zstr = Zlib::Inflate.new
-            while outdata.size < destsize
+            while outdata.bytesize < destsize
               indata = packfile.read(4096)
-              if indata.size == 0
+              if indata.bytesize == 0
                 raise PackFormatError, 'error reading pack data'
               end
               outdata << zstr.inflate(indata)
             end
-            if outdata.size > destsize
+            if outdata.bytesize > destsize
               raise PackFormatError, 'error reading pack data'
             end
             zstr.close
@@ -347,13 +347,13 @@ module Grit
 
         def patch_delta(base, delta)
           src_size, pos = patch_delta_header_size(delta, 0)
-          if src_size != base.size
+          if src_size != base.bytesize
             raise PackFormatError, 'invalid delta data'
           end
 
           dest_size, pos = patch_delta_header_size(delta, pos)
           dest = ""
-          while pos < delta.size
+          while pos < delta.bytesize
             c = delta.getord(pos)
             pos += 1
             if c & 0x80 != 0
